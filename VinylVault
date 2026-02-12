@@ -1,0 +1,247 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vinyl Vault Directory</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <style>
+        .folder-content {
+            max-height: 0;
+            overflow: hidden;
+            transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
+            opacity: 0;
+        }
+        .folder-open .folder-content {
+            max-height: 2000px; 
+            opacity: 1;
+        }
+        .chevron {
+            transition: transform 0.3s ease;
+        }
+        .folder-open .chevron {
+            transform: rotate(90deg);
+        }
+        .artist-row:hover {
+            background-color: #f1f5f9;
+        }
+        .album-art {
+            width: 60px;
+            height: 60px;
+            object-fit: cover;
+            border-radius: 4px;
+            background-color: #e2e8f0;
+            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+        }
+        @keyframes highlight-pulse {
+            0% { background-color: white; }
+            50% { background-color: #fef08a; } /* Soft yellow pulse */
+            100% { background-color: white; }
+        }
+        .picked-album {
+            animation: highlight-pulse 2s ease-in-out 2;
+        }
+    </style>
+</head>
+<body class="bg-slate-50 text-slate-900 min-h-screen p-4 md:p-8">
+
+    <div class="max-w-2xl mx-auto">
+        <header class="mb-8 border-b border-slate-200 pb-4 flex justify-between items-end">
+            <div>
+                <h1 class="text-3xl font-bold text-slate-800">Vinyl Vault</h1>
+                <p class="text-slate-500 italic">Guest Selection Mode</p>
+            </div>
+            <button onclick="pickRandomAlbum()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded-full shadow-lg transition-transform active:scale-95 flex items-center gap-2">
+                <span>🎲</span> Surprise Me
+            </button>
+        </header>
+
+        <div class="mb-6">
+            <input type="text" id="directorySearch" placeholder="Search by artist or album..." 
+                   class="w-full px-4 py-3 rounded-xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+                   onkeyup="filterArtists()">
+        </div>
+
+        <div id="directoryList" class="space-y-3">
+            </div>
+
+        <footer class="mt-12 pt-8 border-t border-slate-200 text-center text-slate-400 text-sm">
+            Total Artists: <span id="artistCount">0</span> | Total Albums: <span id="albumCount">0</span>
+        </footer>
+    </div>
+
+    <script>
+        const collection = [
+            { artist: "AC/DC", albums: ["Back In Black"] },
+            { artist: "Aerosmith", albums: ["Get Your Wings"] },
+            { artist: "Alan Parsons Project", albums: ["I Robot"] },
+            { artist: "Anne Murray", albums: ["Snowbird"] },
+            { artist: "Bad Company", albums: ["Desolation Angels"] },
+            { artist: "Barry Manilow", albums: ["Greatest Hits"] },
+            { artist: "Beethoven (Arturo Toscanini)", albums: ["Nine Beethoven Symphonies"] },
+            { artist: "Billy Joel", albums: ["52nd Street", "An Innocent Man", "Glass Houses", "Piano Man", "Songs in the Attic", "The Stranger"] },
+            { artist: "Black Sabbath", albums: ["Paranoid"] },
+            { artist: "Blue Öyster Cult", albums: ["Agents of Fortune"] },
+            { artist: "Carole King", albums: ["Tapestry"] },
+            { artist: "David Bowie", albums: ["Ziggy Stardust"] },
+            { artist: "Electric Light Orchestra (ELO)", albums: ["ELO's Greatest Hits"] },
+            { artist: "Elvis", albums: ["Golden Records Volume 2", "Golden Records Volume 3", "Golden Records Volume 4"] },
+            { artist: "Elton John", albums: ["Tumbleweed Connection", "The Best of; Volume one"] },
+            { artist: "Fleetwood Mac", albums: ["Rumours"] },
+            { artist: "Foreigner", albums: ["Records (Greatest Hits)"] },
+            { artist: "Golden Earring", albums: ["Moontan"] },
+            { artist: "Greta Van Fleet", albums: ["Anthem of the Peaceful Army", "Live From Bridgeport", "The Battle at Garden's Gate"] },
+            { artist: "Guns N' Roses", albums: ["Appetite for Destruction"] },
+            { artist: "Hozier", albums: ["Nina Cried Power EP"] },
+            { artist: "James Taylor", albums: ["Greatest hits"] },
+            { artist: "Jeff Beck", albums: ["Wired"] },
+            { artist: "Jim Croce", albums: ["Photographs & Memories"] },
+            { artist: "Jimi Hendrix", albums: ["Electric Ladyland", "Experience Hendrix"] },
+            { artist: "John Mayer", albums: ["Born and Raised"] },
+            { artist: "Journey", albums: ["Captured", "Evolution", "Frontiers", "Escape"] },
+            { artist: "Kansas", albums: ["Masque", "Monolith", "Point of Know Return"] },
+            { artist: "King Crimson", albums: ["In the Court of the Crimson King"] },
+            { artist: "Lynyrd Skynyrd", albums: ["Gimme Back My Bullets", "Street Survivors"] },
+            { artist: "Mötley Crüe", albums: ["Girls, Girls, Girls"] },
+            { artist: "Pink Floyd", albums: ["A Momentary Lapse of Reason", "Dark Side of the Moon", "The Wall", "Wish You Were Here"] },
+            { artist: "Prince", albums: ["1999"] },
+            { artist: "Prince and the Revolution", albums: ["Let's Go Crazy / Mountains", "Purple Rain"] },
+            { artist: "Queen", albums: ["Greatest Hits II"] },
+            { artist: "Rush", albums: ["2112", "Exit... Stage Left", "Signals"] },
+            { artist: "Seals & Crofts", albums: ["Diamond Girl"] },
+            { artist: "Simon and Garfunkel", albums: ["Greatest Hits"] },
+            { artist: "Sting", albums: ["The Dream of the Blue Turtles"] },
+            { artist: "Stryper", albums: ["To Hell with the Devil"] },
+            { artist: "Styx", albums: ["Cornerstone"] },
+            { artist: "Talking Heads", albums: ["Fear of Music"] },
+            { artist: "Taylor Swift", albums: ["Evermore"] },
+            { artist: "The Beach Boys", albums: ["Greatest Hits Volume 1", "Greatest Hits Volume 2", "Rarities"] },
+            { artist: "The Beatles", albums: ["Revolver", "Sgt. Pepper's Lonely Hearts Club Band", "The White Album"] },
+            { artist: "The Brook & The Bluff", albums: ["Bluebeard"] },
+            { artist: "The Cars", albums: ["Candy-O", "The Cars"] },
+            { artist: "Thomas Dolby", albums: ["The Golden Age of Wireless"] },
+            { artist: "Tony Bennett", albums: ["The Silver Lining"] },
+            { artist: "Yes", albums: ["Fragile", "The Yes Album"] },
+            { artist: "ZZ Top", albums: ["Eliminator"] }
+        ].sort((a, b) => a.artist.localeCompare(b.artist));
+
+        async function getAlbumArt(artist, album) {
+            const query = encodeURIComponent(`${artist} ${album}`);
+            try {
+                const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=1`);
+                const data = await response.json();
+                if (data.results && data.results.length > 0) {
+                    return data.results[0].artworkUrl100.replace('100x100bb', '300x300bb');
+                }
+            } catch (e) { console.error(e); }
+            return 'https://via.placeholder.com/300?text=No+Cover';
+        }
+
+        async function renderDirectory() {
+            const listElement = document.getElementById('directoryList');
+            listElement.innerHTML = '';
+            let totalAlbums = 0;
+
+            collection.forEach((item, i) => {
+                totalAlbums += item.albums.length;
+                const artistDiv = document.createElement('div');
+                artistDiv.className = "artist-container bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden";
+                artistDiv.id = `artist-${i}`;
+                artistDiv.innerHTML = `
+                    <button onclick="toggleFolder(${i})" class="artist-row w-full flex items-center justify-between p-5 focus:outline-none transition-all">
+                        <div class="flex items-center gap-4">
+                            <div class="w-8 h-8 flex items-center justify-center bg-slate-800 text-white rounded-full text-[10px] font-bold">
+                                ${item.artist.charAt(0)}
+                            </div>
+                            <div class="text-left">
+                                <p class="font-bold text-slate-800 leading-none">${item.artist}</p>
+                                <p class="text-xs text-slate-400 mt-1">${item.albums.length} Records</p>
+                            </div>
+                        </div>
+                        <svg class="chevron w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"></path>
+                        </svg>
+                    </button>
+                    <div class="folder-content bg-slate-50 border-t border-slate-100">
+                        <div id="album-grid-${i}" class="p-4 grid grid-cols-1 gap-4">
+                            <div class="text-xs text-slate-400 animate-pulse">Loading artwork...</div>
+                        </div>
+                    </div>
+                `;
+                listElement.appendChild(artistDiv);
+            });
+            document.getElementById('artistCount').innerText = collection.length;
+            document.getElementById('albumCount').innerText = totalAlbums;
+        }
+
+        async function loadAlbumArtForArtist(index, highlightAlbum = null) {
+            const grid = document.getElementById(`album-grid-${index}`);
+            const item = collection[index];
+            if (grid.dataset.loaded === "true" && !highlightAlbum) return;
+
+            let html = '';
+            for (const album of item.albums) {
+                const isPicked = album === highlightAlbum;
+                const artUrl = await getAlbumArt(item.artist, album);
+                html += `
+                    <div class="flex items-center gap-4 p-2 bg-white rounded-lg border border-slate-100 shadow-sm transition-all ${isPicked ? 'picked-album' : ''}">
+                        <img src="${artUrl}" alt="${album}" class="album-art" onerror="this.src='https://via.placeholder.com/100?text=Vinyl'">
+                        <div>
+                            <p class="font-semibold text-sm text-slate-700">${album}</p>
+                            <p class="text-[10px] text-slate-400 uppercase tracking-wider">${item.artist}</p>
+                        </div>
+                    </div>
+                `;
+            }
+            grid.innerHTML = html;
+            grid.dataset.loaded = "true";
+        }
+
+        function toggleFolder(index) {
+            const element = document.getElementById(`artist-${index}`);
+            const isOpen = element.classList.toggle('folder-open');
+            if (isOpen) loadAlbumArtForArtist(index);
+        }
+
+        async function pickRandomAlbum() {
+            // Reset search so we can see all options
+            document.getElementById('directorySearch').value = '';
+            filterArtists();
+
+            // Flatten all albums into one list
+            const allAlbums = [];
+            collection.forEach((item, artistIdx) => {
+                item.albums.forEach(album => {
+                    allAlbums.push({ artistIdx, albumName: album });
+                });
+            });
+
+            const randomPick = allAlbums[Math.floor(Math.random() * allAlbums.length)];
+            const artistEl = document.getElementById(`artist-${randomPick.artistIdx}`);
+
+            // Close other folders (optional, for focus)
+            document.querySelectorAll('.artist-container').forEach(el => el.classList.remove('folder-open'));
+
+            // Open the picked one
+            artistEl.classList.add('folder-open');
+            await loadAlbumArtForArtist(randomPick.artistIdx, randomPick.albumName);
+            
+            // Smooth scroll
+            artistEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }
+
+        function filterArtists() {
+            const query = document.getElementById('directorySearch').value.toLowerCase();
+            const containers = document.querySelectorAll('.artist-container');
+            containers.forEach((container, index) => {
+                const artist = collection[index];
+                const match = artist.artist.toLowerCase().includes(query) || 
+                              artist.albums.some(a => a.toLowerCase().includes(query));
+                container.style.display = match ? 'block' : 'none';
+            });
+        }
+
+        renderDirectory();
+    </script>
+</body>
+</html>
