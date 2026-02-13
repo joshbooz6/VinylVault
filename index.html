@@ -126,11 +126,11 @@
         async function getAlbumArt(artist, album) {
             const query = encodeURIComponent(`${artist} ${album}`);
             try {
-                // Modified query to be specific to album titles to fix issues with "The Stranger"
+                // Modified search parameters to target albums specifically
                 const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&attribute=albumTerm&limit=1`);
                 const data = await response.json();
                 if (data.results && data.results.length > 0) {
-                    // Increased resolution to 600x600
+                    // Increased artwork quality to 600x600
                     return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
                 }
             } catch (e) { console.error(e); }
