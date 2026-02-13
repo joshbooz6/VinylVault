@@ -89,6 +89,7 @@
             { artist: "Elton John", albums: ["Tumbleweed Connection", "The Best of; Volume one"] },
             { artist: "Fleetwood Mac", albums: ["Rumours"] },
             { artist: "Foreigner", albums: ["Records (Greatest Hits)"] },
+            { artist: "Golden Earring", albums: ["Moontan"] },
             { artist: "Greta Van Fleet", albums: ["Anthem of the Peaceful Army", "Live From Bridgeport", "The Battle at Garden's Gate"] },
             { artist: "Guns N' Roses", albums: ["Appetite for Destruction"] },
             { artist: "Hozier", albums: ["Nina Cried Power EP"] },
@@ -96,6 +97,7 @@
             { artist: "Jeff Beck", albums: ["Wired"] },
             { artist: "Jim Croce", albums: ["Photographs & Memories"] },
             { artist: "Jimi Hendrix", albums: ["Electric Ladyland", "Experience Hendrix"] },
+            { artist: "John Mayer", albums: ["Born and Raised"] },
             { artist: "Journey", albums: ["Captured", "Evolution", "Frontiers", "Escape"] },
             { artist: "Kansas", albums: ["Masque", "Monolith", "Point of Know Return"] },
             { artist: "King Crimson", albums: ["In the Court of the Crimson King"] },
@@ -126,10 +128,12 @@
         async function getAlbumArt(artist, album) {
             const query = encodeURIComponent(`${artist} ${album}`);
             try {
-                const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=1`);
+                // Modified query to be specific to album titles to fix issues with "The Stranger"
+                const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&attribute=albumTerm&limit=1`);
                 const data = await response.json();
                 if (data.results && data.results.length > 0) {
-                    return data.results[0].artworkUrl100.replace('100x100bb', '300x300bb');
+                    // Increased resolution to 600x600
+                    return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
                 }
             } catch (e) { console.error(e); }
             return 'https://via.placeholder.com/300?text=No+Cover';
