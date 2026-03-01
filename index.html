@@ -3,297 +3,284 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Vinyl Vault Directory</title>
+    <title>The Complete Vinyl Vault</title>
     <script src="https://cdn.tailwindcss.com"></script>
     <style>
-        /* New Background Collage Styles */
         #bg-collage {
             position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
+            top: 0; left: 0;
+            width: 100%; height: 100%;
             z-index: -1;
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(150px, 1fr));
             grid-auto-rows: 150px;
-            filter: blur(4px) brightness(0.7); /* Adjust blur and brightness here */
+            filter: blur(5px) brightness(0.6);
             overflow: hidden;
-            background-color: #0f172a; /* Fallback dark slate */
+            background-color: #0f172a;
         }
-
-        #bg-collage img {
-            width: 100%;
-            height: 100%;
-            object-fit: cover;
-            opacity: 0.4; /* Softens the images against the background */
-        }
-
+        #bg-collage img { width: 100%; height: 100%; object-fit: cover; opacity: 0.3; }
+        
         .folder-content {
             max-height: 0;
             overflow: hidden;
             transition: max-height 0.4s cubic-bezier(0.4, 0, 0.2, 1), opacity 0.3s ease;
             opacity: 0;
         }
-        .folder-open .folder-content {
-            max-height: 2000px; 
-            opacity: 1;
-        }
-        .chevron {
-            transition: transform 0.3s ease;
-        }
-        .folder-open .chevron {
-            transform: rotate(90deg);
-        }
-        .artist-row:hover {
-            background-color: #f1f5f9;
-        }
-        .album-art {
-            width: 60px;
-            height: 60px;
-            object-fit: cover;
-            border-radius: 4px;
-            background-color: #e2e8f0;
-            box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-        }
-        @keyframes highlight-pulse {
-            0% { background-color: white; }
-            50% { background-color: #fef08a; }
-            100% { background-color: white; }
-        }
-        .picked-album {
-            animation: highlight-pulse 2s ease-in-out 2;
-        }
-
-        /* Ensuring main content stands out */
+        .folder-open .folder-content { max-height: 3000px; opacity: 1; }
+        .chevron { transition: transform 0.3s ease; }
+        .folder-open .chevron { transform: rotate(90deg); }
+        
         .main-container {
-            background-color: rgba(248, 250, 252, 0.9); /* Semi-transparent slate-50 */
-            backdrop-filter: blur(4px);
+            background-color: rgba(255, 255, 255, 0.92);
+            backdrop-filter: blur(12px);
             border-radius: 1.5rem;
             padding: 2rem;
             margin-top: 2rem;
-            box-shadow: 0 10px 25px -5px rgba(0, 0, 0, 0.3);
+            box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
         }
+
+        #albumModal {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 50;
+            align-items: center;
+            justify-content: center;
+            padding: 1rem;
+        }
+        .modal-content {
+            background: white;
+            border-radius: 1.5rem;
+            max-width: 600px;
+            width: 100%;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        .track-number { color: #6366f1; font-family: monospace; font-weight: bold; width: 20px; display: inline-block; }
     </style>
 </head>
 <body class="text-slate-900 min-h-screen p-4 md:p-8">
 
     <div id="bg-collage"></div>
 
+    <div id="albumModal" onclick="closeModal()">
+        <div class="modal-content p-6 shadow-2xl" onclick="event.stopPropagation()">
+            <div id="modalBody"></div>
+            <button onclick="closeModal()" class="mt-8 w-full py-4 bg-slate-900 hover:bg-black text-white rounded-xl font-bold transition-all shadow-lg">
+                Return to Directory
+            </button>
+        </div>
+    </div>
+
     <div class="max-w-2xl mx-auto main-container">
-        <header class="mb-8 border-b border-slate-200 pb-4 flex justify-between items-end">
+        <header class="mb-8 border-b border-slate-200 pb-6 flex justify-between items-center">
             <div>
-                <h1 class="text-3xl font-bold text-slate-800">Vinyl Vault</h1>
-                <p class="text-slate-500 italic">Guest Selection Mode</p>
+                <h1 class="text-4xl font-black text-slate-800 tracking-tight">Vinyl Vault</h1>
+                <p class="text-indigo-600 font-medium tracking-wide">FULL TRACKLIST EDITION</p>
             </div>
-            <button onclick="pickRandomAlbum()" class="bg-indigo-600 hover:bg-indigo-700 text-white text-sm font-bold py-2 px-4 rounded-full shadow-lg transition-transform active:scale-95 flex items-center gap-2">
-                <span>🎲</span> Surprise Me
+            <button onclick="pickRandomAlbum()" class="bg-indigo-600 hover:bg-indigo-700 text-white p-3 rounded-full shadow-xl transition-all active:scale-90">
+                <span class="text-2xl">🎲</span>
             </button>
         </header>
 
         <div class="mb-6">
-            <input type="text" id="directorySearch" placeholder="Search by artist or album..." 
-                   class="w-full px-4 py-3 rounded-xl border border-slate-200 shadow-sm focus:ring-2 focus:ring-blue-500 focus:outline-none transition-all"
+            <input type="text" id="directorySearch" placeholder="Search by artist, album, or song..." 
+                   class="w-full px-5 py-4 rounded-2xl border-2 border-slate-100 shadow-inner focus:ring-4 focus:ring-indigo-500/20 focus:outline-none transition-all"
                    onkeyup="filterArtists()">
         </div>
 
-        <div id="directoryList" class="space-y-3"></div>
+        <div id="directoryList" class="space-y-4"></div>
 
-        <footer class="mt-12 pt-8 border-t border-slate-200 text-center text-slate-400 text-sm">
-            Total Artists: <span id="artistCount">0</span> | Total Albums: <span id="albumCount">0</span>
+        <footer class="mt-12 pt-8 border-t border-slate-200 text-center text-slate-500 font-medium">
+            <span id="artistCount">0</span> Artists &bull; <span id="albumCount">0</span> Records
         </footer>
     </div>
 
     <script>
         const collection = [
-            { artist: "AC/DC", albums: ["Back In Black"] },
-            { artist: "Aerosmith", albums: ["Get Your Wings", "Aerosmith's Greatest Hits"] },
-            { artist: "Alan Parsons Project", albums: ["I Robot"] },
-            { artist: "Anne Murray", albums: ["Snowbird"] },
-            { artist: "Bad Company", albums: ["Desolation Angels"] },
-            { artist: "Barry Manilow", albums: ["Greatest Hits"] },
-            { artist: "Beethoven (Arturo Toscanini)", albums: ["Nine Beethoven Symphonies"] },
-            { artist: "Billy Joel", albums: ["52nd Street", "An Innocent Man", "Glass Houses", "Piano Man", "Songs in the Attic", "The Stranger"] },
-            { artist: "Black Sabbath", albums: ["Paranoid"] },
-            { artist: "Blue Öyster Cult", albums: ["Agents of Fortune"] },
-            { artist: "Boston", albums: ["Boston"] },
-            { artist: "Carole King", albums: ["Tapestry"] },
-            { artist: "Chicago", albums: ["Chicago IX: Chicago's Greatest Hits"] },
-            { artist: "David Bowie", albums: ["Ziggy Stardust"] },
-            { artist: "Elvis", albums: ["Golden Records Volume 2", "Golden Records Volume 3", "Golden Records Volume 4"] },
-            { artist: "Elton John", albums: ["Tumbleweed Connection", "The Best of; Volume one"] },
-            { artist: "Fleetwood Mac", albums: ["Rumours"] },
-            { artist: "Foreigner", albums: ["Records (Greatest Hits)"] },
-            { artist: "Greta Van Fleet", albums: ["Anthem of the Peaceful Army", "Live From Bridgeport", "The Battle at Garden's Gate"] },
-            { artist: "Guns N' Roses", albums: ["Appetite for Destruction"] },
-            { artist: "Hozier", albums: ["Nina Cried Power EP"] },
-            { artist: "James Taylor", albums: ["Greatest hits"] },
-            { artist: "Jeff Beck", albums: ["Wired"] },
-            { artist: "Jim Croce", albums: ["Photographs & Memories"] },
-            { artist: "Jimi Hendrix", albums: ["Electric Ladyland", "Experience Hendrix"] },
-            { artist: "Journey", albums: ["Captured", "Evolution", "Frontiers", "Escape"] },
-            { artist: "Kansas", albums: ["Masque", "Monolith", "Point of Know Return"] },
-            { artist: "King Crimson", albums: ["In the Court of the Crimson King"] },
-            { artist: "Lynyrd Skynyrd", albums: ["Gimme Back My Bullets", "Street Survivors"] },
-            { artist: "Mötley Crüe", albums: ["Girls, Girls, Girls"] },
-            { artist: "Pat Benetar", albums: ["In the heat of the night"] }, 
-            { artist: "Pink Floyd", albums: ["A Momentary Lapse of Reason", "Dark Side of the Moon", "The Wall", "Wish You Were Here"] },
-            { artist: "Prince", albums: ["1999"] },
-            { artist: "Prince and the Revolution", albums: ["Let's Go Crazy / Mountains", "Purple Rain"] },
-            { artist: "Queen", albums: ["Greatest Hits II"] },
-            { artist: "Rush", albums: ["2112", "Exit... Stage Left", "Signals"] },
-            { artist: "Seals & Crofts", albums: ["Diamond Girl"] },
-            { artist: "Simon and Garfunkel", albums: ["Greatest Hits"] },
-            { artist: "Sting", albums: ["The Dream of the Blue Turtles"] },
-            { artist: "Steve Miller Band", albums: ["Fly Like An Eagle"] },
-            { artist: "Stryper", albums: ["To Hell with the Devil", "Book of Dreams"] },
-            { artist: "Styx", albums: ["Cornerstone"] },
-            { artist: "Talking Heads", albums: ["Fear of Music"] },
-            { artist: "Taylor Swift", albums: ["Evermore"] },
-            { artist: "The Beach Boys", albums: ["Greatest Hits Volume 1", "Greatest Hits Volume 2", "Rarities"] },
-            { artist: "The Beatles", albums: ["Revolver", "Sgt. Pepper's Lonely Hearts Club Band", "The White Album"] },
-            { artist: "The Brook & The Bluff", albums: ["Bluebeard"] },
-            { artist: "The Cars", albums: ["Candy-O", "The Cars"] },
-            { artist: "Thomas Dolby", albums: ["The Golden Age of Wireless"] },
-            { artist: "Tony Bennett", albums: ["The Silver Lining"] },
-            { artist: "Toto", albums: ["IV"] },
-            { artist: "Yes", albums: ["Fragile", "The Yes Album"] },
-            { artist: "ZZ Top", albums: ["Eliminator"] }
+            { artist: "AC/DC", albums: [{ title: "Back In Black", sideA: ["Hells Bells", "Shoot to Thrill", "What Do You Do for Money Honey", "Given the Dog a Bone", "Let Me Put My Love into You"], sideB: ["Back in Black", "You Shook Me All Night Long", "Have a Drink on Me", "Shake a Leg", "Rock and Roll Ain't Noise Pollution"] }] },
+            { artist: "Aerosmith", albums: [
+                { title: "Get Your Wings", sideA: ["Same Old Song and Dance", "Lord of the Thighs", "Spaced", "Woman of the World"], sideB: ["S.O.S. (Too Bad)", "Train Kept A-Rollin'", "Seasons of Wither", "Pandora's Box"] },
+                { title: "Aerosmith's Greatest Hits", sideA: ["Dream On", "Mama Kin", "Same Old Song and Dance", "Sweet Emotion", "Walk This Way"], sideB: ["Last Child", "Back in the Saddle", "Draw the Line", "Kings and Queens", "Come Together"] }
+            ]},
+            { artist: "Alan Parsons Project", albums: [{ title: "I Robot", sideA: ["I Robot", "I Wouldn't Want to Be Like You", "Some Other Time", "Breakdown", "Don't Let It Show"], sideB: ["The Voice", "Nucleus", "Day After Day (The Show Must Go On)", "Total Eclipse", "Genesis Ch.1. V.32"] }] },
+            { artist: "Anne Murray", albums: [{ title: "Snowbird", sideA: ["Snowbird", "Fire and Rain", "Rain", "Bidin' My Time", "Just Bidin' My Time"], sideB: ["I'll Be Your Baby Tonight", "Get Together", "The Call", "Put Your Hand in the Hand", "Break My Mind"] }] },
+            { artist: "Bad Company", albums: [{ title: "Desolation Angels", sideA: ["Rock 'n' Roll Fantasy", "Crazy Circles", "Gone, Gone, Gone", "Evil Wind", "Early in the Morning"], sideB: ["Lonely for Your Love", "Oh, Atlanta", "Take the Time", "Rhythm Machine", "She Brings Me Love"] }] },
+            { artist: "Barry Manilow", albums: [{ title: "Greatest Hits", sideA: ["Mandy", "New York City Rhythm", "Looks Like We Made It", "Daybreak"], sideB: ["Could It Be Magic", "It's a Miracle", "Tryin' to Get the Feeling Again", "This One's for You"] }] },
+            { artist: "Billy Joel", albums: [
+                { title: "The Stranger", sideA: ["Movin' Out (Anthony's Song)", "The Stranger", "Just the Way You Are", "Scenes from an Italian Restaurant"], sideB: ["Vienna", "Only the Good Die Young", "She's Always a Woman", "Get It Right the First Time", "Everybody Has a Dream"] },
+                { title: "52nd Street", sideA: ["Big Shot", "Honesty", "My Life", "Zanzibar"], sideB: ["Stiletto", "Rosalinda's Eyes", "Half a Mile Away", "Until the Night", "52nd Street"] }
+            ]},
+            { artist: "Black Sabbath", albums: [{ title: "Paranoid", sideA: ["War Pigs", "Paranoid", "Planet Caravan", "Iron Man"], sideB: ["Electric Funeral", "Hand of Doom", "Rat Salad", "Fairies Wear Boots"] }] },
+            { artist: "Blue Öyster Cult", albums: [{ title: "Agents of Fortune", sideA: ["This Ain't the Summer of Love", "True Confessions", "(Don't Fear) The Reaper", "E.T.I. (Extra Terrestrial Intelligence)", "The Revenge of Vera Gemini"], sideB: ["Sinful Love", "Tattoo Vampire", "Morning Final", "Tenderloin", "Debbie Denise"] }] },
+            { artist: "Boston", albums: [{ title: "Boston", sideA: ["More Than a Feeling", "Peace of Mind", "Foreplay/Long Time"], sideB: ["Rock & Roll Band", "Smokin'", "Hitch a Ride", "Something About You", "Let Me Take You Home Tonight"] }] },
+            { artist: "Carole King", albums: [{ title: "Tapestry", sideA: ["I Feel the Earth Move", "So Far Away", "It's Too Late", "Home Again", "Beautiful", "Way Over Yonder"], sideB: ["You've Got a Friend", "Where You Lead", "Will You Love Me Tomorrow?", "Smackwater Jack", "Tapestry", "(You Make Me Feel Like) A Natural Woman"] }] },
+            { artist: "Chicago", albums: [{ title: "Chicago IX: Chicago's Greatest Hits", sideA: ["25 or 6 to 4", "Does Anybody Really Know What Time It Is?", "Colour My World", "Just You 'n' Me", "Saturday in the Park", "Feelin' Stronger Every Day"], sideB: ["Make Me Smile", "Wishing You Were Here", "Call on Me", "(I've Been) Searchin' So Long", "Beginnings"] }] },
+            { artist: "David Bowie", albums: [{ title: "Ziggy Stardust", sideA: ["Five Years", "Soul Love", "Moonage Daydream", "Starman", "It Ain't Easy"], sideB: ["Lady Stardust", "Star", "Hang On to Yourself", "Ziggy Stardust", "Suffragette City", "Rock 'n' Roll Suicide"] }] },
+            { artist: "Elvis", albums: [{ title: "Golden Records Volume 2", sideA: ["A Big Hunk o' Love", "My Wish Came True", "(Now and Then There's) A Fool Such as I", "I Need Your Love Tonight", "Don't"], sideB: ["I Beg of You", "Santa Bring My Baby Back (To Me)", "Santa Claus Is Back in Town", "Party", "Paralyzed"] }] },
+            { artist: "Fleetwood Mac", albums: [{ title: "Rumours", sideA: ["Second Hand News", "Dreams", "Never Going Back Again", "Don't Stop", "Go Your Own Way", "Songbird"], sideB: ["The Chain", "You Make Loving Fun", "I Don't Want to Know", "Oh Daddy", "Gold Dust Woman"] }] },
+            { artist: "Guns N' Roses", albums: [{ title: "Appetite for Destruction", sideA: ["Welcome to the Jungle", "It's So Easy", "Nightrain", "Out ta Get Me", "Mr. Brownstone", "Paradise City"], sideB: ["My Michelle", "Think About You", "Sweet Child o' Mine", "You're Crazy", "Anything Goes", "Rocket Queen"] }] },
+            { artist: "Jimi Hendrix", albums: [{ title: "Electric Ladyland", sideA: ["...And the Gods Made Love", "Have You Ever Been (To Electric Ladyland)", "Crosstown Traffic", "Voodoo Chile"], sideB: ["Little Miss Strange", "Long Hot Summer Night", "Come On", "Gypsy Eyes", "Burning of the Midnight Lamp"] }] },
+            { artist: "Journey", albums: [{ title: "Escape", sideA: ["Don't Stop Believin'", "Stone in Love", "Who's Crying Now", "Keep On Runnin'", "Still They Ride"], sideB: ["Escape", "Lay It Down", "Dead or Alive", "Mother, Father", "Open Arms"] }] },
+            { artist: "Pink Floyd", albums: [{ title: "Dark Side of the Moon", sideA: ["Speak to Me", "Breathe", "On the Run", "Time", "The Great Gig in the Sky"], sideB: ["Money", "Us and Them", "Any Colour You Like", "Brain Damage", "Eclipse"] }] },
+            { artist: "Pat Benatar", albums: [{ title: "In the Heat of the Night", sideA: ["Heartbreaker", "I Need a Lover", "If You Think You Know How to Love Me", "In the Heat of the Night", "My Clone Sleeps Alone"], sideB: ["We Live for Love", "Rated X", "Don't Let It Show", "No You Don't", "So Sincere"] }] },
+            { artist: "Prince", albums: [{ title: "1999", sideA: ["1999", "Little Red Corvette", "Delirious"], sideB: ["Let's Pretend We're Married", "Free"] }] },
+            { artist: "Rush", albums: [{ title: "2112", sideA: ["2112: Overture/The Temples of Syrinx/Discovery/Presentation/Oracle/Soliloquy/Grand Finale"], sideB: ["A Passage to Bangkok", "The Twilight Zone", "Lessons", "Tears", "Something for Nothing"] }] },
+            { artist: "Steve Miller Band", albums: [
+                { title: "Fly Like An Eagle", sideA: ["Space Intro", "Fly Like an Eagle", "Wild Mountain Honey", "Serenade", "Dance, Dance, Dance", "Mercury Blues"], sideB: ["Take the Money and Run", "Rock'n Me", "You Send Me", "Blueberry Hill", "The Window"] },
+                { title: "Book of Dreams", sideA: ["Threshold", "Jet Airliner", "Winter Time", "Swingtown", "True Fine Love", "Wish Upon a Star"], sideB: ["Jungle Love", "Electro Lux Imbroglio", "Sacrifice", "The Stake", "My Own Space", "Babes in the Wood"] }
+            ]},
+            { artist: "Toto", albums: [{ title: "IV", sideA: ["Rosanna", "Make Believe", "I Won't Hold You Back", "Good for You", "It's a Feeling"], sideB: ["Afraid of Love", "Lovers in the Night", "We Made It", "Waiting for Your Love", "Africa"] }] },
+            { artist: "Yes", albums: [{ title: "Fragile", sideA: ["Roundabout", "Cans and Brahms", "We Have Heaven", "South Side of the Sky"], sideB: ["Five Per Cent for Nothing", "Long Distance Runaround", "The Fish (Schindleria Praematurus)", "Mood for a Day", "Heart of the Sunrise"] }] }
         ].sort((a, b) => a.artist.localeCompare(b.artist));
 
+        // UTILITY: Get Art
         async function getAlbumArt(artist, album) {
             const query = encodeURIComponent(`${artist} ${album}`);
             try {
-                // Fixed: Added entity=album to the search to fix "The Stranger" and others
                 const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=1`);
                 const data = await response.json();
-                if (data.results && data.results.length > 0) {
-                    return data.results[0].artworkUrl100.replace('100x100bb', '600x600bb');
-                }
-            } catch (e) { console.error(e); }
-            return 'https://via.placeholder.com/300?text=No+Cover';
+                return data.results?.[0]?.artworkUrl100.replace('100x100bb', '600x600bb') || 'https://via.placeholder.com/600?text=Vinyl+Vault';
+            } catch (e) { return 'https://via.placeholder.com/600?text=Vinyl+Vault'; }
         }
 
-        // New function to build the background collage
-        async function buildBackgroundCollage() {
-            const bgContainer = document.getElementById('bg-collage');
-            // Select 30 random albums to avoid hitting API limits too hard on load
-            const shuffled = [];
-            collection.forEach(item => {
-                item.albums.forEach(album => shuffled.push({ artist: item.artist, album }));
-            });
+        // UI: Open Modal
+        async function showAlbumDetails(artistName, albumTitle) {
+            const artist = collection.find(a => a.artist === artistName);
+            const album = artist.albums.find(al => al.title === albumTitle);
+            const modalBody = document.getElementById('modalBody');
             
-            const selection = shuffled.sort(() => 0.5 - Math.random()).slice(0, 60);
-            
-            for (const item of selection) {
-                const url = await getAlbumArt(item.artist, item.album);
+            modalBody.innerHTML = `<div class="p-20 text-center"><div class="animate-spin h-10 w-10 border-4 border-indigo-500 border-t-transparent rounded-full mx-auto"></div></div>`;
+            document.getElementById('albumModal').style.display = 'flex';
+
+            const artUrl = await getAlbumArt(artistName, albumTitle);
+
+            modalBody.innerHTML = `
+                <img src="${artUrl}" class="w-full aspect-square object-cover rounded-2xl shadow-2xl mb-6">
+                <h2 class="text-3xl font-black text-slate-800 leading-tight">${album.title}</h2>
+                <p class="text-indigo-600 font-bold tracking-widest uppercase text-sm mb-6">${artistName}</p>
+                
+                <div class="space-y-6">
+                    <div class="bg-indigo-50 p-5 rounded-2xl border border-indigo-100">
+                        <h3 class="text-indigo-900 font-black text-xs tracking-widest mb-3 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-indigo-500 rounded-full"></span> SIDE A
+                        </h3>
+                        <ul class="space-y-2 text-sm">
+                            ${album.sideA ? album.sideA.map((t, i) => `<li class="flex gap-3 text-slate-700 font-medium"><span class="track-number">${i+1}</span> ${t}</li>`).join('') : '<li class="italic text-slate-400">Loading...</li>'}
+                        </ul>
+                    </div>
+                    <div class="bg-slate-50 p-5 rounded-2xl border border-slate-200">
+                        <h3 class="text-slate-500 font-black text-xs tracking-widest mb-3 flex items-center gap-2">
+                            <span class="w-2 h-2 bg-slate-400 rounded-full"></span> SIDE B
+                        </h3>
+                        <ul class="space-y-2 text-sm text-slate-600 font-medium">
+                            ${album.sideB ? album.sideB.map((t, i) => `<li class="flex gap-3"><span class="track-number">${(album.sideA?.length || 0) + i + 1}</span> ${t}</li>`).join('') : '<li class="italic text-slate-400">Loading...</li>'}
+                        </ul>
+                    </div>
+                </div>
+            `;
+        }
+
+        function closeModal() { document.getElementById('albumModal').style.display = 'none'; }
+
+        // BACKGROUND
+        async function buildBackground() {
+            const bg = document.getElementById('bg-collage');
+            const flat = [];
+            collection.forEach(a => a.albums.forEach(al => flat.push({artist: a.artist, title: al.title})));
+            const select = flat.sort(() => 0.5 - Math.random()).slice(0, 30);
+            for (const item of select) {
+                const url = await getAlbumArt(item.artist, item.title);
                 const img = document.createElement('img');
                 img.src = url;
-                bgContainer.appendChild(img);
+                bg.appendChild(img);
             }
         }
 
-        async function renderDirectory() {
-            const listElement = document.getElementById('directoryList');
-            listElement.innerHTML = '';
+        // DIRECTORY
+        function renderDirectory() {
+            const list = document.getElementById('directoryList');
             let totalAlbums = 0;
+            list.innerHTML = '';
 
             collection.forEach((item, i) => {
                 totalAlbums += item.albums.length;
-                const artistDiv = document.createElement('div');
-                artistDiv.className = "artist-container bg-white border border-slate-200 rounded-xl shadow-sm overflow-hidden mb-3";
-                artistDiv.id = `artist-${i}`;
-                artistDiv.innerHTML = `
-                    <button onclick="toggleFolder(${i})" class="artist-row w-full flex items-center justify-between p-5 focus:outline-none transition-all">
+                const div = document.createElement('div');
+                div.className = "artist-container bg-white border border-slate-200 rounded-2xl shadow-sm transition-all";
+                div.id = `artist-${i}`;
+                div.innerHTML = `
+                    <button onclick="toggleFolder(${i})" class="w-full flex items-center justify-between p-6 focus:outline-none">
                         <div class="flex items-center gap-4">
-                            <div class="w-8 h-8 flex items-center justify-center bg-slate-800 text-white rounded-full text-[10px] font-bold">
-                                ${item.artist.charAt(0)}
-                            </div>
+                            <div class="w-10 h-10 bg-slate-900 text-white rounded-full flex items-center justify-center font-black">${item.artist.charAt(0)}</div>
                             <div class="text-left">
-                                <p class="font-bold text-slate-800 leading-none">${item.artist}</p>
-                                <p class="text-xs text-slate-400 mt-1">${item.albums.length} Records</p>
+                                <h4 class="font-bold text-slate-800">${item.artist}</h4>
+                                <p class="text-xs text-slate-400">${item.albums.length} Records</p>
                             </div>
                         </div>
-                        <svg class="chevron w-5 h-5 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"></path>
-                        </svg>
+                        <svg class="chevron w-6 h-6 text-slate-300" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="9 5l7 7-7 7"></path></svg>
                     </button>
                     <div class="folder-content bg-slate-50 border-t border-slate-100">
-                        <div id="album-grid-${i}" class="p-4 grid grid-cols-1 gap-4">
-                            <div class="text-xs text-slate-400 animate-pulse">Loading artwork...</div>
-                        </div>
+                        <div id="grid-${i}" class="p-4 grid grid-cols-1 gap-3"></div>
                     </div>
                 `;
-                listElement.appendChild(artistDiv);
+                list.appendChild(div);
             });
             document.getElementById('artistCount').innerText = collection.length;
             document.getElementById('albumCount').innerText = totalAlbums;
         }
 
-        async function loadAlbumArtForArtist(index, highlightAlbum = null) {
-            const grid = document.getElementById(`album-grid-${index}`);
-            const item = collection[index];
-            if (grid.dataset.loaded === "true" && !highlightAlbum) return;
-
+        async function loadArt(i) {
+            const grid = document.getElementById(`grid-${i}`);
+            if (grid.dataset.loaded) return;
+            grid.innerHTML = '<div class="p-4 text-xs text-slate-400 animate-pulse">Pulling records from crate...</div>';
             let html = '';
-            for (const album of item.albums) {
-                const isPicked = album === highlightAlbum;
-                const artUrl = await getAlbumArt(item.artist, album);
+            for (const al of collection[i].albums) {
+                const url = await getAlbumArt(collection[i].artist, al.title);
                 html += `
-                    <div class="flex items-center gap-4 p-2 bg-white rounded-lg border border-slate-100 shadow-sm transition-all ${isPicked ? 'picked-album' : ''}">
-                        <img src="${artUrl}" alt="${album}" class="album-art" onerror="this.src='https://via.placeholder.com/100?text=Vinyl'">
-                        <div>
-                            <p class="font-semibold text-sm text-slate-700">${album}</p>
-                            <p class="text-[10px] text-slate-400 uppercase tracking-wider">${item.artist}</p>
+                    <div onclick="showAlbumDetails('${collection[i].artist.replace(/'/g, "\\'")}', '${al.title.replace(/'/g, "\\")}')" 
+                         class="flex items-center gap-4 p-3 bg-white rounded-xl border border-slate-100 cursor-pointer hover:shadow-lg hover:border-indigo-200 transition-all">
+                        <img src="${url}" class="w-14 h-14 rounded-lg shadow-sm">
+                        <div class="flex-1">
+                            <p class="font-bold text-sm text-slate-700">${al.title}</p>
+                            <p class="text-[10px] text-indigo-500 font-black uppercase tracking-tighter">View Sides A & B</p>
                         </div>
                     </div>
                 `;
             }
             grid.innerHTML = html;
-            grid.dataset.loaded = "true";
+            grid.dataset.loaded = true;
         }
 
-        function toggleFolder(index) {
-            const element = document.getElementById(`artist-${index}`);
-            const isOpen = element.classList.toggle('folder-open');
-            if (isOpen) loadAlbumArtForArtist(index);
-        }
-
-        async function pickRandomAlbum() {
-            document.getElementById('directorySearch').value = '';
-            filterArtists();
-
-            const allAlbums = [];
-            collection.forEach((item, artistIdx) => {
-                item.albums.forEach(album => {
-                    allAlbums.push({ artistIdx, albumName: album });
-                });
-            });
-
-            const randomPick = allAlbums[Math.floor(Math.random() * allAlbums.length)];
-            const artistEl = document.getElementById(`artist-${randomPick.artistIdx}`);
-
-            document.querySelectorAll('.artist-container').forEach(el => el.classList.remove('folder-open'));
-
-            artistEl.classList.add('folder-open');
-            await loadAlbumArtForArtist(randomPick.artistIdx, randomPick.albumName);
-            artistEl.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        function toggleFolder(i) {
+            const el = document.getElementById(`artist-${i}`);
+            const open = el.classList.toggle('folder-open');
+            if (open) loadArt(i);
         }
 
         function filterArtists() {
-            const query = document.getElementById('directorySearch').value.toLowerCase();
-            const containers = document.querySelectorAll('.artist-container');
-            containers.forEach((container, index) => {
-                const artist = collection[index];
-                const match = artist.artist.toLowerCase().includes(query) || 
-                              artist.albums.some(a => a.toLowerCase().includes(query));
-                container.style.display = match ? 'block' : 'none';
+            const q = document.getElementById('directorySearch').value.toLowerCase();
+            document.querySelectorAll('.artist-container').forEach((el, i) => {
+                const match = collection[i].artist.toLowerCase().includes(q) || 
+                              collection[i].albums.some(al => al.title.toLowerCase().includes(q) || (al.sideA?.some(t => t.toLowerCase().includes(q))));
+                el.style.display = match ? 'block' : 'none';
             });
         }
 
-        // Initialize both the background and the directory
-        buildBackgroundCollage();
+        async function pickRandomAlbum() {
+            const all = [];
+            collection.forEach((a, ai) => a.albums.forEach(al => all.push({ai, a: a.artist, t: al.title})));
+            const p = all[Math.floor(Math.random() * all.length)];
+            const el = document.getElementById(`artist-${p.ai}`);
+            document.querySelectorAll('.artist-container').forEach(c => c.classList.remove('folder-open'));
+            el.classList.add('folder-open');
+            await loadArt(p.ai);
+            el.scrollIntoView({behavior: 'smooth', block: 'center'});
+            setTimeout(() => showAlbumDetails(p.a, p.t), 600);
+        }
+
         renderDirectory();
+        buildBackground();
     </script>
 </body>
 </html>
