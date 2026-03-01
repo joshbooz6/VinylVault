@@ -96,7 +96,10 @@
     <script>
         const collection = [
             { artist: "AC/DC", albums: [{ title: "Back In Black", sideA: ["Hells Bells", "Shoot to Thrill", "What Do You Do for Money Honey", "Given the Dog a Bone", "Let Me Put My Love into You"], sideB: ["Back in Black", "You Shook Me All Night Long", "Have a Drink on Me", "Shake a Leg", "Rock and Roll Ain't Noise Pollution"] }] },
-            { artist: "Aerosmith", albums: [{ title: "Get Your Wings", sideA: ["Same Old Song and Dance", "Lord of the Thighs", "Spaced", "Woman of the World"], sideB: ["S.O.S. (Too Bad)", "Train Kept A-Rollin'", "Seasons of Wither", "Pandora's Box"] }] },
+            { artist: "Aerosmith", albums: [
+                { title: "Get Your Wings", sideA: ["Same Old Song and Dance", "Lord of the Thighs", "Spaced", "Woman of the World"], sideB: ["S.O.S. (Too Bad)", "Train Kept A-Rollin'", "Seasons of Wither", "Pandora's Box"] },
+                { title: "Greatest Hits", sideA: ["Dream On", "Mama Kin", "Same Old Song and Dance", "Get the Lead Out", "Sweet Emotion"], sideB: ["Walk This Way", "Last Child", "Back in the Saddle", "Draw the Line", "Kings and Queens"] }
+            ]},
             { artist: "Alan Parsons Project", albums: [{ title: "I Robot", sideA: ["I Robot", "I Wouldn't Want to Be Like You", "Some Other Time", "Breakdown", "Don't Let It Show"], sideB: ["The Voice", "Nucleus", "Day After Day", "Total Eclipse", "Genesis Ch.1. V.32"] }] },
             { artist: "Anne Murray", albums: [{ title: "Snowbird", sideA: ["Snowbird", "Fire and Rain", "Rain", "Bidin' My Time", "Just Bidin' My Time"], sideB: ["I'll Be Your Baby Tonight", "Get Together", "The Call", "Put Your Hand in the Hand", "Break My Mind"] }] },
             { artist: "Bad Company", albums: [{ title: "Desolation Angels", sideA: ["Rock 'n' Roll Fantasy", "Crazy Circles", "Gone, Gone, Gone", "Evil Wind", "Early in the Morning"], sideB: ["Lonely for Your Love", "Oh, Atlanta", "Take the Time", "Rhythm Machine", "She Brings Me Love"] }] },
@@ -112,12 +115,14 @@
             ]},
             { artist: "Black Sabbath", albums: [{ title: "Paranoid", sideA: ["War Pigs", "Paranoid", "Planet Caravan", "Iron Man"], sideB: ["Electric Funeral", "Hand of Doom", "Rat Salad", "Fairies Wear Boots"] }] },
             { artist: "Blue Öyster Cult", albums: [{ title: "Agents of Fortune", sideA: ["This Ain't the Summer of Love", "True Confessions", "(Don't Fear) The Reaper", "E.T.I.", "Revenge of Vera Gemini"], sideB: ["Sinful Love", "Tattoo Vampire", "Morning Final", "Tenderloin", "Debbie Denise"] }] },
+            { artist: "Boston", albums: [{ title: "Boston", sideA: ["More Than a Feeling", "Peace of Mind", "Foreplay/Long Time"], sideB: ["Rock & Roll Band", "Smokin'", "Hitch a Ride", "Something About You", "Let Me Take You Home Tonight"] }] },
             { artist: "Carole King", albums: [{ title: "Tapestry", sideA: ["I Feel the Earth Move", "So Far Away", "It's Too Late", "Home Again", "Beautiful", "Way Over Yonder"], sideB: ["You've Got a Friend", "Where You Lead", "Will You Love Me Tomorrow?", "Smackwater Jack", "Tapestry", "Natural Woman"] }] },
+            { artist: "Chicago", albums: [{ title: "Greatest Hits", sideA: ["If You Leave Me Now", "Saturday in the Park", "25 or 6 to 4", "Make Me Smile"], sideB: ["Wishing You Were Here", "Call on Me", "Does Anybody Really Know What Time It Is?", "Old Days"] }] },
             { artist: "David Bowie", albums: [{ title: "Ziggy Stardust", sideA: ["Five Years", "Soul Love", "Moonage Daydream", "Starman", "It Ain't Easy"], sideB: ["Lady Stardust", "Star", "Hang on to Yourself", "Ziggy Stardust", "Suffragette City", "Rock 'n' Roll Suicide"] }] },
             { artist: "Elvis", albums: [
                 { title: "Golden Records Volume 2", sideA: ["I Need Your Love Tonight", "Don't", "Wear My Ring Around Your Neck", "My Wish Came True", "I Got Stung"], sideB: ["One Night", "A Big Hunk O' Love", "I Beg of You", "A Fool Such as I", "Doncha' Think It's Time"] },
                 { title: "Golden Records Volume 3", sideA: ["It's Now or Never", "Stuck on You", "Fame and Fortune", "I Gotta Know", "Surrender"], sideB: ["I Feel So Bad", "Are You Lonesome Tonight?", "His Latest Flame", "Little Sister", "Good Luck Charm"] },
-                { artist: "Golden Records Volume 4", sideA: ["Love Letters", "Witchcraft", "It Hurts Me", "What'd I Say", "Please Don't Drag That String Around"], sideB: ["Indescribably Blue", "You're the Devil in Disguise", "Lonely Man", "A Mess of Blues", "Ask Me"] }
+                { title: "Golden Records Volume 4", sideA: ["Love Letters", "Witchcraft", "It Hurts Me", "What'd I Say", "Please Don't Drag That String Around"], sideB: ["Indescribably Blue", "You're the Devil in Disguise", "Lonely Man", "A Mess of Blues", "Ask Me"] }
             ]},
             { artist: "Elton John", albums: [
                 { title: "Tumbleweed Connection", sideA: ["Ballad of a Well-Known Gun", "Come Down in Time", "Country Comfort", "Son of Your Father", "My Father's Gun"], sideB: ["Where to Now St. Peter?", "Love Song", "Amoreena", "Talking Old Soldiers", "Burn Down the Mission"] },
@@ -156,6 +161,7 @@
                 { title: "Street Survivors", sideA: ["What's Your Name", "That Smell", "One More Time"], sideB: ["I Know a Little", "You Got That Right", "Pourehouse Roulette"] }
             ]},
             { artist: "Mötley Crüe", albums: [{ title: "Girls, Girls, Girls", sideA: ["Wild Side", "Girls, Girls, Girls", "Dancing on Glass"], sideB: ["Bad Boy Boogie", "Nona", "Summertime Blues", "You're All I Need"] }] },
+            { artist: "Pat Benatar", albums: [{ title: "In the Heat of the Night", sideA: ["Heartbreaker", "I Need a Lover", "If You Think You Know How to Love Me"], sideB: ["In the Heat of the Night", "My Clone Sleeps Alone", "We Live for Love"] }] },
             { artist: "Pink Floyd", albums: [
                 { title: "A Momentary Lapse of Reason", sideA: ["Signs of Life", "Learning to Fly", "The Dogs of War", "One Slip"], sideB: ["On the Turning Away", "Yet Another Movie", "Terminal Frost", "Sorrow"] },
                 { title: "Dark Side of the Moon", sideA: ["Speak to Me", "Breathe", "On the Run", "Time", "The Great Gig in the Sky"], sideB: ["Money", "Us and Them", "Any Colour You Like", "Brain Damage", "Eclipse"] },
@@ -175,6 +181,10 @@
             ]},
             { artist: "Seals & Crofts", albums: [{ title: "Diamond Girl", sideA: ["Diamond Girl", "Ruby Jean and Billie Lee", "Intone My Servant"], sideB: ["Dust on My Saddle", "Jessica", "Wisdom"] }] },
             { artist: "Simon and Garfunkel", albums: [{ title: "Greatest Hits", sideA: ["Mrs. Robinson", "For Emily, Whenever I May Find Her", "The Boxer", "The 59th Street Bridge Song"], sideB: ["Sound of Silence", "I Am a Rock", "Scarborough Fair", "Bridge Over Troubled Water"] }] },
+            { artist: "Steve Miller Band", albums: [
+                { title: "Book of Dreams", sideA: ["Threshold", "Jet Airliner", "Winter Time", "Swingtown"], sideB: ["True Fine Love", "Wish Upon a Star", "Jungle Love", "The Stake", "The Sacrifice"] },
+                { title: "Fly Like an Eagle", sideA: ["Space Intro", "Fly Like an Eagle", "Wild Mountain Honey", "Serenade"], sideB: ["The Joker", "Take the Money and Run", "Rock'n Me", "The Window"] }
+            ]},
             { artist: "Sting", albums: [{ title: "The Dream of the Blue Turtles", sideA: ["If You Love Somebody Set Them Free", "Love Is the Seventh Wave", "Russians"], sideB: ["Shadows in the Rain", "We Work the Black Seam", "Consider Me Gone"] }] },
             { artist: "Stryper", albums: [
                 { title: "To Hell with the Devil", sideA: ["To Hell with the Devil", "Calling on You", "Free"], sideB: ["Holding On", "Rockin' the World", "More Than a Man"] },
@@ -200,6 +210,7 @@
             ]},
             { artist: "Thomas Dolby", albums: [{ title: "The Golden Age of Wireless", sideA: ["She Blinded Me with Science", "Radio Silence"], sideB: ["Windpower", "Flying North"] }] },
             { artist: "Tony Bennett", albums: [{ title: "The Silver Lining", sideA: ["Look for the Silver Lining"], sideB: ["The Way You Look Tonight"] }] },
+            { artist: "Toto", albums: [{ title: "IV", sideA: ["Rosanna", "Make Believe", "I Won't Hold You Back", "Good for You", "It's a Feeling"], sideB: ["Afraid of Love", "Lovers in the Night", "We Made It", "Waiting for Your Love", "Africa"] }] },
             { artist: "Yes", albums: [
                 { title: "Fragile", sideA: ["Roundabout", "Cans and Brahms", "We Have Heaven", "South Side of the Sky"], sideB: ["Long Distance Runaround", "The Fish", "Mood for a Day", "Heart of the Sunrise"] },
                 { title: "The Yes Album", sideA: ["Yours Is No Disgrace", "Clap"], sideB: ["Starship Trooper", "I've Seen All Good People"] }
