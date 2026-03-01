@@ -203,13 +203,23 @@
                 { title: "Sgt. Pepper's Lonely Hearts Club Band", sideA: ["Sgt. Pepper's Lonely Hearts Club Band", "With a Little Help from My Friends", "Lucy in the Sky with Diamonds", "Getting Better"], sideB: ["Within You Without You", "When I'm Sixty-Four", "Lovely Rita", "A Day in the Life"] },
                 { title: "The White Album", sideA: ["Back in the U.S.S.R.", "Dear Prudence", "Glass Onion", "Ob-La-Di, Ob-La-Da"], sideB: ["While My Guitar Gently Weeps", "Happiness Is a Warm Gun", "Martha My Dear"] }
             ]},
-            { artist: "The Brook & The Bluff", albums: [{ title: "Bluebeard", sideA: ["Bluebeard", "Off the Ground"], sideB: ["Everything Is New", "Straws"] }] },
+            { artist: "The Brook & The Bluff", albums: [{ 
+                title: "Bluebeard", 
+                sideA: ["Normal Things", "Long Limbs", "Hiding", "Bulletins From The Past", "Tangerine", "Headfirst"], 
+                sideB: ["Twist My Arm", "Knock", "My Foggy Lens", "Prove You Wrong", "Tell Me", "Bluebeard"] 
+            }]},
             { artist: "The Cars", albums: [
                 { title: "Candy-O", sideA: ["Let's Go", "Since I Held You", "It's All I Can Do", "Double Life"], sideB: ["Candy-O", "Night Spots", "Dangerous Type"] },
                 { title: "The Cars", sideA: ["Good Times Roll", "My Best Friend's Girl", "Just What I Needed", "I'm in Touch with Your World"], sideB: ["Don't Cha Stop", "You're All I've Got Tonight", "Bye Bye Love", "Moving in Stereo"] }
             ]},
             { artist: "Thomas Dolby", albums: [{ title: "The Golden Age of Wireless", sideA: ["She Blinded Me with Science", "Radio Silence"], sideB: ["Windpower", "Flying North"] }] },
-            { artist: "Tony Bennett", albums: [{ title: "The Silver Lining", sideA: ["Look for the Silver Lining"], sideB: ["The Way You Look Tonight"] }] },
+            { artist: "Tony Bennett", albums: [{ 
+                title: "The Silver Lining", 
+                sideA: ["All The Things You Are", "Pick Yourself Up", "The Last Time I Saw Paris"], 
+                sideB: ["I Won't Dance", "Long Ago and Far Away", "Dearly Beloved", "This Song Is You"],
+                sideC: ["They Didn't Believe Me", "I'm Old Fashioned", "The Way You Look Tonight", "Yesterdays"],
+                sideD: ["Make Believe", "Nobody Else but Me", "Look For The Silver Lining"]
+            }]},
             { artist: "Toto", albums: [{ title: "IV", sideA: ["Rosanna", "Make Believe", "I Won't Hold You Back", "Good for You", "It's a Feeling"], sideB: ["Afraid of Love", "Lovers in the Night", "We Made It", "Waiting for Your Love", "Africa"] }] },
             { artist: "Yes", albums: [
                 { title: "Fragile", sideA: ["Roundabout", "Cans and Brahms", "We Have Heaven", "South Side of the Sky"], sideB: ["Long Distance Runaround", "The Fish", "Mood for a Day", "Heart of the Sunrise"] },
@@ -218,26 +228,16 @@
             { artist: "ZZ Top", albums: [{ title: "Eliminator", sideA: ["Gimme All Your Lovin'", "Got Me Under Pressure", "Sharp Dressed Man", "I Need You Tonight", "I Got the Six"], sideB: ["Legs", "Thug", "TV Dinners", "Dirty Dog", "If I Could Only Flag Her Down", "Bad Girl"] }] }
         ].sort((a, b) => a.artist.localeCompare(b.artist));
 
-        // Use a Proxy or JSONP-style fetch to bypass CORS, or provide a reliable fallback
+        // Updated modal logic to handle up to 4 sides
         async function getAlbumArt(artist, album) {
             const query = encodeURIComponent(`${artist} ${album}`);
             const fallback = 'https://via.placeholder.com/600?text=Vinyl+Vault';
-            
-            // Note: Since GitHub Pages often blocks raw iTunes API due to CORS,
-            // we wrap this in a try-catch and use a JSONP approach or simple direct img check if possible.
             try {
-                const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=1`, {
-                    mode: 'cors', // Explicitly try CORS, but many environments block this
-                });
-                
+                const response = await fetch(`https://itunes.apple.com/search?term=${query}&entity=album&limit=1`);
                 if (!response.ok) throw new Error('Network block');
-                
                 const data = await response.json();
                 return data.results?.[0]?.artworkUrl100.replace('100x100bb', '600x600bb') || fallback;
-            } catch (e) { 
-                console.warn(`Art fetch failed for ${artist} - ${album}: Using fallback.`);
-                return fallback; 
-            }
+            } catch (e) { return fallback; }
         }
 
         async function showAlbumDetails(artistName, albumTitle) {
@@ -250,23 +250,31 @@
 
             const artUrl = await getAlbumArt(artistName, albumTitle);
 
+            // Construct sides HTML dynamically
+            let sidesHtml = '';
+            const sides = ['sideA', 'sideB', 'sideC', 'sideD'];
+            let totalTracks = 0;
+            
+            sides.forEach((side, index) => {
+                if (album[side]) {
+                    sidesHtml += `
+                        <div>
+                            <h3 class="side-label mb-3 uppercase">Side ${String.fromCharCode(65 + index)}</h3>
+                            <ul class="space-y-2 mb-6">
+                                ${album[side].map((t, i) => `<li class="text-sm text-slate-600"><span class="track-num">${totalTracks + i + 1}</span> ${t}</li>`).join('')}
+                            </ul>
+                        </div>
+                    `;
+                    totalTracks += album[side].length;
+                }
+            });
+
             body.innerHTML = `
                 <img src="${artUrl}" class="w-full aspect-square object-cover rounded-xl shadow-lg mb-6">
                 <h2 class="text-2xl font-black text-slate-800">${album.title}</h2>
                 <p class="text-indigo-600 font-bold text-xs uppercase tracking-widest mb-6">${artistName}</p>
                 <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-                    <div>
-                        <h3 class="side-label mb-3 uppercase">Side A</h3>
-                        <ul class="space-y-2">
-                            ${album.sideA.map((t, i) => `<li class="text-sm text-slate-600"><span class="track-num">${i+1}</span> ${t}</li>`).join('')}
-                        </ul>
-                    </div>
-                    <div>
-                        <h3 class="side-label mb-3 uppercase">Side B</h3>
-                        <ul class="space-y-2">
-                            ${album.sideB.map((t, i) => `<li class="text-sm text-slate-600"><span class="track-num">${album.sideA.length + i + 1}</span> ${t}</li>`).join('')}
-                        </ul>
-                    </div>
+                    ${sidesHtml}
                 </div>
             `;
         }
